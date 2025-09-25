@@ -21,7 +21,7 @@ Think of it as a **no-code/low-code tool** for creating bespoke CRUD application
 | ☁️ **Cloudinary Integration**  | Seamlessly upload and manage images and files directly to Cloudinary, keeping the application stateless and serverless-ready.             |
 | 📝 **Rich Content Editors**    | Includes WYSIWYG and long-text fields for managing complex content.                                                                       |
 | 📜 **Full Audit Trail**        | Logs every significant action (create, update, delete) across all modules for complete accountability.                                    |
-| 🎨 **Customizable Theme**      | Easily change the primary color theme of the application directly from the code.                                                          |
+| 🎨 **Customizable Theme**      | Switch themes effortlessly right within the app.                                                          |
 
 ---
 
