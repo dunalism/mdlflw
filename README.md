@@ -1,6 +1,6 @@
 # ModulFlow
 
-**ModulFlow** is a dynamic, serverless-ready admin panel built on **Laravel 12** and **Filament 3**.  
+**ModulFlow** is a dynamic admin panel built on **Laravel 12** and **Filament 3**.  
 It empowers administrators and power-users to visually build, manage, and interact with custom data modules directly from a web interface, without writing a single line of code.
 
 Think of it as a **no-code/low-code tool** for creating bespoke CRUD applications, complete with relational data, role-based access control, and dynamic dashboards.
