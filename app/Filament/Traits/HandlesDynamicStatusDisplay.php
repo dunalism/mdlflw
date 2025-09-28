@@ -57,6 +57,7 @@ trait HandlesDynamicStatusDisplay
                 'dibaca',
                 'sudah dibaca',
                 'read',
+                'hadir',
             ],
             'warning' => [
                 'pending',
@@ -68,6 +69,7 @@ trait HandlesDynamicStatusDisplay
                 'processing',
                 'diproses',
                 'sedang dibaca',
+                'sakit',
             ],
             'danger' => [
                 'inactive',
@@ -78,6 +80,7 @@ trait HandlesDynamicStatusDisplay
                 'ditolak',
                 'cancelled',
                 'dibatalkan',
+                'tidak hadir',
                 'overdue',
                 'terlambat',
                 'expired',
@@ -89,7 +92,7 @@ trait HandlesDynamicStatusDisplay
                 'unread',
                 'belum dibaca',
             ],
-            'gray' => ['draft', 'draf', 'archived', 'diarsipkan', 'on hold', 'ditunda'],
+            'gray' => ['draft', 'izin', 'draf', 'archived', 'diarsipkan', 'on hold', 'ditunda'],
         ];
 
         foreach ($colorMap as $color => $keywords) {

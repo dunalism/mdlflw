@@ -82,23 +82,23 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
         $moduleName = request()->query('module');
 
         // Bangun nama izin yang diharapkan
-        $permissionName = 'page_'.Str::snake(Str::studly(Str::singular($moduleName)));
+        $permissionName = 'page_' . Str::snake(Str::studly(Str::singular($moduleName)));
 
-        if (! Gate::allows($permissionName)) {
-            throw new AuthorizationException;
+        if (!Gate::allows($permissionName)) {
+            throw new AuthorizationException();
         }
     }
 
     public function mount(): void
     {
         $moduleName = request()->query('module');
-        if (! $moduleName) {
+        if (!$moduleName) {
             abort(404);
         }
 
         $this->module = Module::with('fields')->where('table_name', $moduleName)->firstOrFail();
         $modelName = Str::studly(Str::singular($this->module->table_name));
-        $this->modelClass = 'App\\Models\\Dynamic\\'.$modelName;
+        $this->modelClass = 'App\\Models\\Dynamic\\' . $modelName;
         $this->permissionBase = Str::singular($this->module->table_name);
     }
 
@@ -115,13 +115,13 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
             ->actions([
                 EditAction::make()
                     ->form($this->getFormSchema())
-                    ->visible(fn (): bool => $user?->can('update_'.$this->permissionBase) ?? false),
-                DeleteAction::make()->visible(fn (): bool => $user?->can('delete_'.$this->permissionBase) ?? false),
+                    ->visible(fn(): bool => $user?->can('update_' . $this->permissionBase) ?? false),
+                DeleteAction::make()->visible(fn(): bool => $user?->can('delete_' . $this->permissionBase) ?? false),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()->visible(
-                        fn (): bool => $user?->can('delete_'.$this->permissionBase) ?? false,
+                        fn(): bool => $user?->can('delete_' . $this->permissionBase) ?? false,
                     ),
 
                     // =================================================================
@@ -134,7 +134,7 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                         ->icon('heroicon-o-table-cells')
                         ->action(function (Collection $records) {
                             $exportableFields = $this->getExportableFields();
-                            $filename = Str::slug($this->module->name).'-'.now()->format('Y-m-d').'.xlsx';
+                            $filename = Str::slug($this->module->name) . '-' . now()->format('Y-m-d') . '.xlsx';
 
                             return Excel::download(new DynamicModuleExport($records, $exportableFields), $filename);
                         }),
@@ -154,8 +154,8 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                             $pdf = Pdf::loadHTML($html);
 
                             return response()->streamDownload(
-                                fn () => print $pdf->output(),
-                                Str::slug($this->module->name).'-'.now()->format('Y-m-d').'.pdf',
+                                fn() => print $pdf->output(),
+                                Str::slug($this->module->name) . '-' . now()->format('Y-m-d') . '.pdf',
                             );
                         }),
 
@@ -163,13 +163,13 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                         ->label('Export to Word')
                         ->icon('heroicon-o-document-text')
                         ->action(function (Collection $records) {
-                            $phpWord = new PhpWord;
+                            $phpWord = new PhpWord();
                             $phpWord->setDefaultFontName('Arial');
                             $phpWord->getSettings()->setThemeFontLang(new Language(Language::EN_US));
 
                             $section = $phpWord->addSection();
-                            $section->addTitle('Data Ekspor untuk: '.$this->module->name, 1);
-                            $section->addText('Tanggal Ekspor: '.now()->format('d F Y H:i'));
+                            $section->addTitle('Data Ekspor untuk: ' . $this->module->name, 1);
+                            $section->addText('Tanggal Ekspor: ' . now()->format('d F Y H:i'));
                             $section->addTextBreak(1); // Spasi
 
                             $table = $section->addTable([
@@ -198,14 +198,14 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                             }
 
                             $writer = IOFactory::createWriter($phpWord, 'Word2007');
-                            $filename = Str::slug($this->module->name).'-'.now()->format('Y-m-d').'.docx';
+                            $filename = Str::slug($this->module->name) . '-' . now()->format('Y-m-d') . '.docx';
 
-                            return response()->streamDownload(fn () => $writer->save('php://output'), $filename);
+                            return response()->streamDownload(fn() => $writer->save('php://output'), $filename);
                         }),
                 ]),
             ])
             ->recordUrl(
-                fn (Model $record): ?string => $user?->can('view_'.$this->permissionBase)
+                fn(Model $record): ?string => $user?->can('view_' . $this->permissionBase)
                     ? ViewDynamicEntry::getUrl([
                         'module' => $this->module->table_name,
                         'record' => $record->id,
@@ -218,25 +218,25 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        if (! $this->module) {
+        if (!$this->module) {
             return [];
         }
 
         return [
             CreateAction::make()
-                ->label('Add '.Str::singular($this->module->name))
+                ->label('Add ' . Str::singular($this->module->name))
                 ->form($this->getFormSchema())
                 ->using(function (array $data): Model {
                     return $this->modelClass::create($data);
                 })
-                ->successNotificationTitle($this->module->name.' baru berhasil ditambahkan')
-                ->visible(fn (): bool => $user?->can('create_'.$this->permissionBase) ?? false),
+                ->successNotificationTitle($this->module->name . ' baru berhasil ditambahkan')
+                ->visible(fn(): bool => $user?->can('create_' . $this->permissionBase) ?? false),
         ];
     }
 
     protected function getFormSchema(): array
     {
-        if (! $this->module) {
+        if (!$this->module) {
             return [];
         }
 
@@ -276,13 +276,13 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
 
                             if ($displayColumn == 'id') {
                                 $options = [
-                                    'Please add a string type column in the module: ('.
-                                    $relatedModule->table_name.
+                                    'Please add a string type column in the module: (' .
+                                    $relatedModule->table_name .
                                     ')',
                                 ];
                                 $placeholder =
-                                    'Please add a string type column in the module: ('.
-                                    $relatedModule->table_name.
+                                    'Please add a string type column in the module: (' .
+                                    $relatedModule->table_name .
                                     ')';
                             } else {
                                 $columnStringExists = true;
@@ -291,10 +291,10 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                                     ->map(function ($label) use ($displayColumn, $relatedModule) {
                                         if (empty($label)) {
                                             $label =
-                                                'Please add data to: ('.
-                                                $displayColumn.
-                                                '), in the module: ('.
-                                                $relatedModule->name.
+                                                'Please add data to: (' .
+                                                $displayColumn .
+                                                '), in the module: (' .
+                                                $relatedModule->name .
                                                 ')';
                                         }
 
@@ -308,7 +308,7 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                         }
                         $component = Select::make($field->column_name)
                             ->options($options)
-                            ->disabled(! $columnStringExists && $field->source_type === 'module')
+                            ->disabled(!$columnStringExists && $field->source_type === 'module')
                             ->helperText($placeholder);
                         break;
                     case 'image': // <-- Handle image type
@@ -324,7 +324,7 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                                 if ($state instanceof TemporaryUploadedFile) {
                                     $cloudinary = new Cloudinary(config('cloudinary.cloud_url'));
                                     $uploadResult = $cloudinary->uploadApi()->upload($state->getRealPath(), [
-                                        'folder' => 'modules/'.$this->module->table_name,
+                                        'folder' => 'modules/' . $this->module->table_name,
                                         'public_id' => Str::random(20),
                                         'upload_preset' => 'modules',
                                     ]);
@@ -352,7 +352,7 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                                 if ($state instanceof TemporaryUploadedFile) {
                                     $cloudinary = new Cloudinary(config('cloudinary.cloud_url'));
                                     $uploadResult = $cloudinary->uploadApi()->upload($state->getRealPath(), [
-                                        'folder' => 'modules/'.$this->module->table_name,
+                                        'folder' => 'modules/' . $this->module->table_name,
                                         'public_id' => Str::random(20),
                                         'upload_preset' => 'modules',
                                         'resource_type' => 'raw', // penting untuk PDF, ZIP, dll
@@ -380,7 +380,7 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                     // Terapkan 'required' secara berbeda untuk file/gambar
                     if (in_array($field->data_type, ['image', 'file'])) {
                         // Hanya wajib saat membuat ('create'), tidak saat mengedit ('edit')
-                        $component->required(fn (string $operation): bool => $operation === 'create');
+                        $component->required(fn(string $operation): bool => $operation === 'create');
                     } else {
                         // Perilaku normal untuk semua tipe kolom lainnya
                         $component->required();
@@ -411,7 +411,7 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
 
     protected function getTableColumns(): array
     {
-        if (! $this->module) {
+        if (!$this->module) {
             return [];
         }
         $columns = [];
@@ -421,11 +421,11 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
             }
             $tableColumn = null;
 
-            if ($this->isStatusColumn($field->column_name)) {
+            if ($this->isStatusColumn($field->column_name) && $field->data_type === 'options') {
                 $tableColumn = TextColumn::make($field->column_name)
                     ->label(Str::headline($field->column_name))
                     ->badge()
-                    ->color(fn (?string $state): string => $this->getStatusColor($state) ?? 'primary')
+                    ->color(fn(?string $state): string => $this->getStatusColor($state) ?? 'primary')
                     ->searchable();
             } else {
                 // Logika lama untuk kolom non-status
@@ -442,10 +442,10 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                         break;
                     case 'file': // <-- LOGIKA BARU UNTUK MENAMPILKAN IKON FILE
                         $tableColumn = IconColumn::make($field->column_name)
-                            ->icon(fn (?string $state): string => $this->getFileIcon($state))
+                            ->icon(fn(?string $state): string => $this->getFileIcon($state))
                             ->color('primary')
                             ->label(Str::headline($field->column_name))
-                            ->url(fn (?string $state): ?string => $state, shouldOpenInNewTab: true);
+                            ->url(fn(?string $state): ?string => $state, shouldOpenInNewTab: true);
                         break;
                     default:
                         $tableColumn = TextColumn::make($field->column_name)
@@ -477,7 +477,7 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
 
     protected function getTableFilters(): array
     {
-        if (! $this->module) {
+        if (!$this->module) {
             return [];
         }
 
@@ -489,7 +489,7 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
 
             switch ($dataType) {
                 case 'options':
-                    if (! empty($field->options)) {
+                    if (!empty($field->options)) {
                         $options = array_map('trim', explode(',', $field->options));
                         $filter = SelectFilter::make($field->column_name)
                             ->label(Str::headline($field->column_name))
@@ -502,30 +502,30 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                     $filter = Filter::make($field->column_name)
                         ->form([
                             FormDatePicker::make('created_from')
-                                ->label($labelBase.' (from)')
+                                ->label($labelBase . ' (from)')
                                 ->live()
-                                ->maxDate(fn (Get $get): ?string => $get('created_until'))
+                                ->maxDate(fn(Get $get): ?string => $get('created_until'))
                                 // 4. Tambahkan aturan validasi di sisi server sebagai pengaman
                                 ->rule(
                                     'before_or_equal:created_until',
                                     // Hanya jalankan aturan ini jika 'created_until' sudah diisi
-                                    fn (Get $get): bool => filled($get('created_until')),
+                                    fn(Get $get): bool => filled($get('created_until')),
                                 ),
                             FormDatePicker::make('created_until')
-                                ->label($labelBase.' (until)')
+                                ->label($labelBase . ' (until)')
                                 ->live()
-                                ->minDate(fn (Get $get): ?string => $get('created_from'))
+                                ->minDate(fn(Get $get): ?string => $get('created_from'))
                                 ->rule(
                                     'after_or_equal:created_from',
                                     // Hanya jalankan aturan ini jika 'created_from' sudah diisi
-                                    fn (Get $get): bool => filled($get('created_from')),
+                                    fn(Get $get): bool => filled($get('created_from')),
                                 ),
                         ])
                         ->query(function (Builder $query, array $data) use ($field): Builder {
                             return $query
                                 ->when(
                                     $data['created_from'],
-                                    fn (Builder $query, $date): Builder => $query->whereDate(
+                                    fn(Builder $query, $date): Builder => $query->whereDate(
                                         $field->column_name,
                                         '>=',
                                         $date,
@@ -533,7 +533,7 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                                 )
                                 ->when(
                                     $data['created_until'],
-                                    fn (Builder $query, $date): Builder => $query->whereDate(
+                                    fn(Builder $query, $date): Builder => $query->whereDate(
                                         $field->column_name,
                                         '<=',
                                         $date,
@@ -564,23 +564,23 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                 FormDatePicker::make('created_until')
                     ->label('Created until')
                     // 3. Secara dinamis set tanggal minimum berdasarkan input 'created_from'
-                    ->minDate(fn (Get $get): ?string => $get('created_from'))
+                    ->minDate(fn(Get $get): ?string => $get('created_from'))
                     // 4. Tambahkan aturan validasi di sisi server sebagai pengaman
                     ->rule(
                         'after_or_equal:created_from',
                         // Hanya jalankan aturan ini jika 'created_from' sudah diisi
-                        fn (Get $get): bool => filled($get('created_from')),
+                        fn(Get $get): bool => filled($get('created_from')),
                     ),
             ])
             ->query(function (Builder $query, array $data): Builder {
                 return $query
                     ->when(
                         $data['created_from'],
-                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                        fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
                     )
                     ->when(
                         $data['created_until'],
-                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                        fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                     );
             });
 
@@ -616,11 +616,11 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
 
         $excludes = $format === 'excel' ? $excelExcludes : $documentExcludes;
 
-        return $this->module->fields->filter(fn ($field) => ! in_array($field->data_type, $excludes));
+        return $this->module->fields->filter(fn($field) => !in_array($field->data_type, $excludes));
     }
 
     protected function getExportHeaders(string $format = 'excel'): array
     {
-        return $this->getExportableFields($format)->map(fn ($field) => Str::headline($field->column_name))->toArray();
+        return $this->getExportableFields($format)->map(fn($field) => Str::headline($field->column_name))->toArray();
     }
 }
