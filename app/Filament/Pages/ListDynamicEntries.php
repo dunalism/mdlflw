@@ -301,6 +301,26 @@ class ListDynamicEntries extends Page implements HasForms, HasTable
                                         return $label;
                                     })
                                     ->toArray();
+
+                                $optionsis = DB::table($relatedModule->table_name)
+                                    ->pluck($displayColumn, $displayColumn)
+                                    ->map(function ($label) use ($displayColumn, $relatedModule) {
+                                        if (empty($label)) {
+                                            $label = '';
+                                        }
+
+                                        return $label;
+                                    })
+                                    ->toArray();
+
+                                if (in_array('', $optionsis) || $optionsis == null) {
+                                    $placeholder =
+                                        'Please add data to: (' .
+                                        $displayColumn .
+                                        '), in the module: (' .
+                                        $relatedModule->name .
+                                        ')';
+                                }
                             }
                         } else {
                             $manualOptions = array_map('trim', explode(',', $field->options ?? ''));
