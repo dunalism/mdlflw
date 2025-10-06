@@ -13,6 +13,7 @@ class StatsOverviewWidget extends BaseWidget
 {
     protected function getStats(): array
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $superAdminEmail = env('SUPER_ADMIN_EMAIL', 'superadmin@example.com');
 
@@ -39,7 +40,7 @@ class StatsOverviewWidget extends BaseWidget
                 ->description('Roles & permission groups')
                 ->icon('heroicon-o-shield-check')
                 ->extraAttributes(
-                    $user->email === $superAdminEmail
+                    $user->email === $superAdminEmail || $user->hasRole('super_admin')
                         ? [
                             'x-data' => '{}',
                             'x-on:click' => "Livewire.navigate('/shield/roles')",

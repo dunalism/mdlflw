@@ -18,6 +18,8 @@ class RecentAuditsWidget extends BaseWidget
 
     public function table(Table $table): Table
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         return $table
             ->query(AuditResource::getEloquentQuery()->limit(5)) // Gunakan query dari AuditResource agar filter manajer juga berlaku!
             ->paginated(false)
@@ -25,9 +27,9 @@ class RecentAuditsWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('user.name'),
                 Tables\Columns\TextColumn::make('event')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => Str::headline($state))
+                    ->formatStateUsing(fn(string $state): string => Str::headline($state))
                     ->color(
-                        fn (string $state): string => match ($state) {
+                        fn(string $state): string => match ($state) {
                             'created' => 'success',
                             'updated' => 'warning',
                             'deleted' => 'danger',
@@ -37,7 +39,7 @@ class RecentAuditsWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('auditable_type')
                     ->label('Target')
                     ->formatStateUsing(
-                        fn (string $state): string => (string) Str::of($state)
+                        fn(string $state): string => (string) Str::of($state)
                             ->afterLast('\\')
                             ->snake()
                             ->replace('_', ' ')
@@ -47,10 +49,16 @@ class RecentAuditsWidget extends BaseWidget
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()->url(
-                    fn (Audit $record): string => AuditResource::getUrl('view', ['record' => $record]),
+                    fn(Audit $record): string => $user->can('view_audit')
+                        ? AuditResource::getUrl('view', ['record' => $record])
+                        : '',
                 ),
             ])
-            ->recordUrl(fn (Audit $record): string => AuditResource::getUrl('view', ['record' => $record]))
+            ->recordUrl(
+                fn(Audit $record): string => $user->can('view_audit')
+                    ? AuditResource::getUrl('view', ['record' => $record])
+                    : '',
+            )
             ->defaultSort('created_at', 'desc');
     }
 
